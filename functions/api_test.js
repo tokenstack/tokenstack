@@ -12,7 +12,7 @@ async function testAuthorization() {
 
     const accessToken = await axios({
         method: 'post',
-        url: "http://localhost:5000/" + "authenticate",
+        url: appHostedUrl + "authenticate",
         data: {
             apiKey: sampleApiKey,
         }
