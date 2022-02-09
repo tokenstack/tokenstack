@@ -30,20 +30,25 @@ api.post('/authenticate', async (req, res) => {
 });
 
 api.post('/v1/upload/ipfs', async (req, res) => {
-    const fileData = req.body.fileData;
+    const ipfsData = uploadToIPFS(req.body.accessToken, req.body.fileData);
+
+    res.json(ipfsData).status(200);
+});
+
+async function uploadToIPFS(accessToken, fileData) {
     const ipfsData = await axios({
         method: 'post',
         url: TOKENSTACK_APP_URL + "v1/upload/ipfs",
         headers: {
-            "Authorization": req.headers.accessToken
+            "Authorization": accessToken
         },
         data: {
             "fileData": fileData,
         }
     }).then((response) => response.data);
 
-    res.json(ipfsData).status(200);
-});
+    return ipfsData;
+}
 
 api.listen(APP_PORT, () => {
     console.log(`api listening at http://localhost:${APP_PORT}`)
