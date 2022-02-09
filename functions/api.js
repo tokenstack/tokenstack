@@ -52,7 +52,7 @@ api.post('/v1/nft/mint', async (req, res) => {
     // Get image path from IPFS
     const image = imageIpfsInfo.full_path;
     // Create the metadata
-    const metadata = createMetadata(description, image, name, attributes, externalUrl);
+    const metadata = JSON.stringify(createMetadata(description, image, name, attributes, externalUrl));
     // Upload Metadata to the IPFS
     const metadataIpfsInfo = uploadToIPFS(accessToken, metadata);
 
