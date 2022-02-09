@@ -2,19 +2,22 @@
 
 pragma solidity ^0.8.0;
 
-import "OpenZeppelin/openzeppelin-contracts/blob/master/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 
-contract AbstractNFT is ERC721 {
-
+contract AbstractNFT is ERC721URIStorage {
     uint256 public tokenCounter;
 
-    constructor(string memory _name, string memory _symbol) 
-    public ERC721(_name, _symbol) {
+    constructor(string memory _name, string memory _symbol)
+        public
+        ERC721(_name, _symbol)
+    {
         tokenCounter = 0;
     }
 
     function createCollectible(string memory tokenURI)
-        public return (uint256)
+        public
+        returns (uint256)
     {
         uint256 newTokenId = tokenCounter;
         _safeMint(msg.sender, newTokenId);
