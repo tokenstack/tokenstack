@@ -6,14 +6,15 @@ require("@nomiclabs/hardhat-waffle");
 require('@openzeppelin/hardhat-upgrades');
 
 
-const ROPSTEN_PRIVATE_KEY = "PRIVATE-KEY-HERE";
+const PRIVATE_KEY = "";
+const NODE_URL = "";
 
 module.exports = {
   solidity: "0.8.0",
   networks: {
-    ropsten: {
-      url: `https://api.mycryptoapi.com/eth`,
-      accounts: [`${ROPSTEN_PRIVATE_KEY}`]
+    rinkeby: {
+      url: NODE_URL,
+      accounts: [`${PRIVATE_KEY}`]
     }
   }
 };

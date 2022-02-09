@@ -1,4 +1,4 @@
-const { TOKENSTACK_APP_URL } = require('./tokenstack_config.js');
+const { TOKENSTACK_APP_URL, TOKENSTACK_SETTINGS } = require('./tokenstack_config.js');
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
@@ -45,8 +45,14 @@ api.post('/v1/nft/mint', async (req, res) => {
     const attributes = req.body.attributes;
     const externalUrl = req.body.externalUrl;
     const name = req.body.name;
-    // Deploy NFT Contract
-    const deploymentResults = deployContract();
+
+    // Specify Contract
+    const abstractNFTContract = await ethers.getContractFactory("AbstractNFT");
+    // Specify contract based on Network
+    const contractFactory = await abstractNFTContract.attach(
+        TOKENSTACK_SETTINGS.contracts.nft.rinkeby // Use contract deployed on Rinkeby
+    );
+
     // Get image deployment data
     const imageIpfsInfo = uploadToIPFS(accessToken, fileData);
     // Get image path from IPFS
@@ -55,9 +61,8 @@ api.post('/v1/nft/mint', async (req, res) => {
     const metadata = JSON.stringify(createMetadata(description, image, name, attributes, externalUrl));
     // Upload Metadata to the IPFS
     const metadataIpfsInfo = uploadToIPFS(accessToken, metadata);
-
     // Mint the NFT
-    const transaction = await deploymentResults.contractFactory.createCollectible(metadataIpfsInfo.full_path);
+    const transaction = await contractFactory.createCollectible(metadataIpfsInfo.full_path);
     const transactionWait = await transaction.wait();
 
     // Post Mint Checks
