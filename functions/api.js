@@ -70,7 +70,7 @@ api.post('/v1/nft/mint', async (req, res) => {
     const value = event.args[2];
     const tokenId = value.toNumber();
 
-    const tokenURI = await deploymentResults.contractFactory.tokenURI(tokenId);
+    const tokenURI = await contractFactory.tokenURI(tokenId);
 
     res.status(200).json({
         "tokenId": tokenId,
@@ -89,22 +89,12 @@ function createMetadata(description, image, name, attributes, externalUrl) {
         metadata["attributes"] = attributes;
     }
 
-    if (external_url != null) {
+    if (externalUrl != null) {
         metadata["external_url"] = externalUrl;
     }
 
     return metadata
 }
-async function deployContract() {
-    const abstractNFTContract = await ethers.getContractFactory("AbstractNFT");
-    const abstractNFT = abstractNFTContract.deploy();
-    await abstractNFT.deployed();
-    return {
-        "address": abstractNFT.address,
-        "contractFactory": abstractNFT
-    }
-}
-
 async function uploadToIPFS(accessToken, fileData) {
     const ipfsData = await axios({
         method: 'post',
