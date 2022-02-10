@@ -11,7 +11,7 @@ const api = express();
 const APP_PORT = 5000;
 
 // ExpressJS Settings
-api.use(express.json());
+api.use(express.json({ limit: '50mb' }));
 api.use(helmet());
 api.use(cors({ origin: true }));
 api.use(morgan('combined'));
@@ -52,29 +52,27 @@ api.post('/v1/nft/mint', async (req, res) => {
     const contractFactory = await abstractNFTContract.attach(
         TOKENSTACK_SETTINGS.contracts.nft.rinkeby // Use contract deployed on Rinkeby
     );
-
     // Get image deployment data
-    const imageIpfsInfo = uploadToIPFS(accessToken, fileData);
+    const imageIpfsInfo = await uploadToIPFS(accessToken, fileData);
     // Get image path from IPFS
     const image = imageIpfsInfo.full_path;
     // Create the metadata
     const metadata = JSON.stringify(createMetadata(description, image, name, attributes, externalUrl));
+    const metadatab64 = Buffer.from(metadata).toString("base64");
     // Upload Metadata to the IPFS
-    const metadataIpfsInfo = uploadToIPFS(accessToken, metadata);
-    // Mint the NFT
+    const metadataIpfsInfo = await uploadToIPFS(accessToken, metadatab64);
+    // // Mint the NFT
     const transaction = await contractFactory.createCollectible(metadataIpfsInfo.full_path);
     const transactionWait = await transaction.wait();
-
     // Post Mint Checks
-    const event = transactionWait.events[0];
-    const value = event.args[2];
-    const tokenId = value.toNumber();
-
-    const tokenURI = await contractFactory.tokenURI(tokenId);
-
+    const blockHash = transactionWait.blockHash;
+    const transactionHash = transactionWait.transactionHash;
+    console.log(contractFactory);
     res.status(200).json({
-        "tokenId": tokenId,
-        "tokenURI": tokenURI
+        "blockHash": blockHash,
+        "transactionHash": transactionHash,
+        "image": image,
+        "metadata": metadataIpfsInfo.full_path
     })
 
 })
@@ -92,7 +90,6 @@ function createMetadata(description, image, name, attributes, externalUrl) {
     if (externalUrl != null) {
         metadata["external_url"] = externalUrl;
     }
-
     return metadata
 }
 async function uploadToIPFS(accessToken, fileData) {
@@ -106,7 +103,6 @@ async function uploadToIPFS(accessToken, fileData) {
             "fileData": fileData,
         }
     }).then((response) => response.data);
-
     return ipfsData;
 }
 
