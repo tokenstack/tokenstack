@@ -19,10 +19,11 @@ api.use(cors({ origin: true }));
 api.use(morgan('combined'));
 
 // Web3js Settings
-const web3 = createAlchemyWeb3(getAppVariable(NODE_URL));
-
-const contract = require("./artifacts/contracts/AbstractNFT.sol/AbstractNFT.json");
-const nftContract = new web3.eth.Contract(contract.abi, TOKENSTACK_SETTINGS.contracts.nft.rinkeby);
+async function createWeb3() {
+    const NODE_URL = await getAppVariable("NODE_URL");
+    const web3 = createAlchemyWeb3(NODE_URL);
+    return web3;
+}
 
 api.post('/authenticate', async (req, res) => {
     const apiKey = req.body.apiKey;
@@ -45,6 +46,9 @@ api.post('/v1/upload/ipfs', async (req, res) => {
 });
 
 api.post('/v1/nft/mint', async (req, res) => {
+    const web3 = await createWeb3();
+    const contract = require("./artifacts/contracts/AbstractNFT.sol/AbstractNFT.json");
+    const nftContract = new web3.eth.Contract(contract.abi, TOKENSTACK_SETTINGS.contracts.nft.rinkeby);
     // NFT Metadata + Image Setup
     process.env.PRIVATE_KEY = req.body.privateKey;
     const publicKey = req.body.publicKey;
@@ -112,7 +116,7 @@ async function getAppVariable(variableName) {
         }
     }).then((response) => response.data);
 
-    return variable;
+    return variable.result;
 }
 
 function createMetadata(description, image, name, attributes, externalUrl) {

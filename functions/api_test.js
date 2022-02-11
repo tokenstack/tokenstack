@@ -42,8 +42,8 @@ async function testCreateNFT() {
         externalUrl: "",
         name: "tokenstack nft",
         fileData: fileData,
-        privateKey: process.env.PRIVATE_KEY,
-        publicKey: process.env.PUBLIC_KEY
+        privateKey: (await getAppVariable("TEST_PRIVATE_KEY")).result,
+        publicKey: (await getAppVariable("TEST_PUBLIC_KEY")).result
     }
 
     const nft = await axios({
@@ -53,6 +53,19 @@ async function testCreateNFT() {
     }).then((response) => response.data);
 
     console.log(nft);
+}
+
+async function getAppVariable(variableName) {
+    const variable = await axios({
+        method: 'post',
+        url: appLocalUrl + 'internal/getVariable/',
+        data: {
+            variable: variableName,
+            apiToken: process.env.API_TOKEN,
+        }
+    }).then((response) => response.data);
+
+    return variable;
 }
 
 async function runAllTests() {
