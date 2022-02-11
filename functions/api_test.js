@@ -1,3 +1,4 @@
+require('dotenv').config();
 const axios = require('axios').default;
 const { TOKENSTACK_APP_URL } = require('./tokenstack_config.js');
 
@@ -41,7 +42,8 @@ async function testCreateNFT() {
         externalUrl: "",
         name: "tokenstack nft",
         fileData: fileData,
-        privateKey: "bcdadd500a9396f305786d70e44f4c1957be9a254fc2100def6be16efb995779"
+        privateKey: process.env.PRIVATE_KEY,
+        publicKey: process.env.PUBLIC_KEY
     }
 
     const nft = await axios({
