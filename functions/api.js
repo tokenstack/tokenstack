@@ -19,7 +19,8 @@ api.use(cors({ origin: true }));
 api.use(morgan('combined'));
 
 // Web3js Settings
-const web3 = createAlchemyWeb3(process.env.NODE_URL);
+const web3 = createAlchemyWeb3(getAppVariable(NODE_URL));
+
 const contract = require("./artifacts/contracts/AbstractNFT.sol/AbstractNFT.json");
 const nftContract = new web3.eth.Contract(contract.abi, TOKENSTACK_SETTINGS.contracts.nft.rinkeby);
 
@@ -53,12 +54,7 @@ api.post('/v1/nft/mint', async (req, res) => {
     const attributes = req.body.attributes;
     const externalUrl = req.body.externalUrl;
     const name = req.body.name;
-    // // Specify Contract
-    // const abstractNFTContract = await ethers.getContractFactory("AbstractNFT");
-    // // Specify contract based on Network
-    // const contractFactory = await abstractNFTContract.attach(
-    //     TOKENSTACK_SETTINGS.contracts.nft.rinkeby // Use contract deployed on Rinkeby
-    // );
+
     // Get image deployment data
     const imageIpfsInfo = await uploadToIPFS(accessToken, fileData);
     // Get image path from IPFS
@@ -68,12 +64,8 @@ api.post('/v1/nft/mint', async (req, res) => {
     const metadatab64 = Buffer.from(metadata).toString("base64");
     // Upload Metadata to the IPFS
     const metadataIpfsInfo = await uploadToIPFS(accessToken, metadatab64);
-    // // Mint the NFT
-    // const transaction = await contractFactory.createCollectible(metadataIpfsInfo.full_path);
-    // const transactionWait = await transaction.wait();
-    // // Post Mint Checks
-    // const blockHash = transactionWait.blockHash;
-    // const transactionHash = transactionWait.transactionHash;
+
+    // Mint the NFT
     const nonce = await web3.eth.getTransactionCount(publicKey, 'latest'); //get latest nonce
     //the transaction
     const transaction = {
@@ -86,7 +78,6 @@ api.post('/v1/nft/mint', async (req, res) => {
     };
 
     const signPromise = web3.eth.accounts.signTransaction(transaction, process.env.PRIVATE_KEY);
-    let transactionHash = "";
 
     signPromise.then((signedTx) => {
         web3.eth.sendSignedTransaction(signedTx.rawTransaction, function (err, hash) {
@@ -110,6 +101,19 @@ api.post('/v1/nft/mint', async (req, res) => {
         });
     });
 })
+
+async function getAppVariable(variableName) {
+    const variable = await axios({
+        method: 'post',
+        url: TOKENSTACK_APP_URL + 'internal/getVariable/',
+        data: {
+            variable: variableName,
+            apiToken: process.env.API_TOKEN,
+        }
+    }).then((response) => response.data);
+
+    return variable;
+}
 
 function createMetadata(description, image, name, attributes, externalUrl) {
     let metadata = {

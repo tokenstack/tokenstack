@@ -11,6 +11,12 @@ jobs:
       run: |
         cd functions
         npm install
+        cd ..
+    - name: Create Env File
+      run: |
+        cd functions
+        touch .env
+        echo API_TOKEN=${{ secrets.API_TOKEN }} >> .env
     - name:  Deploy to Firebase
       uses: w9jds/firebase-action@master
       with:
