@@ -7,10 +7,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Install npm packages
+    - name: Install npm packages & compile contracts
       run: |
         cd functions
         npm install
+        npx hardhat compile
         cd ..
     - name: Create Env File
       run: |
