@@ -19,6 +19,7 @@ jobs:
         touch .env
         echo API_TOKEN=${{ secrets.API_TOKEN }} >> .env
         echo ENVIRONMENT=${{ secrets.ENVIRONMENT }} >> .env
+        echo NODE_URL=${{ secrets.NODE_URL }} >> .env
     - name:  Deploy to Firebase
       uses: w9jds/firebase-action@master
       with:
