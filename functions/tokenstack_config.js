@@ -1,4 +1,6 @@
-TOKENSTACK_APP_URL = "https://us-central1-tokenstack-dev.cloudfunctions.net/app";
+require('dotenv').config();
+
+TOKENSTACK_APP_URL = process.env.ENVIRONMENT === "development" ? "http://localhost:3000/" : "https://us-central1-tokenstack-dev.cloudfunctions.net/app/";
 TOKENSTACK_SETTINGS = {
     contracts: {
         nft: {

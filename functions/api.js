@@ -7,7 +7,6 @@ const helmet = require('helmet');
 const morgan = require('morgan');
 const axios = require('axios').default;
 const functions = require('firebase-functions');
-const { ethers } = require("hardhat");
 const { createAlchemyWeb3 } = require("@alch/alchemy-web3");
 const api = express();
 const APP_PORT = 5000;

@@ -18,6 +18,7 @@ jobs:
         cd functions
         touch .env
         echo API_TOKEN=${{ secrets.API_TOKEN }} >> .env
+        echo ENVIRONMENT=${{ secrets.ENVIRONMENT }} >> .env
     - name:  Deploy to Firebase
       uses: w9jds/firebase-action@master
       with:
