@@ -7,10 +7,18 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: Install npm packages
+    - name: Install npm packages & compile contracts
       run: |
         cd functions
         npm install
+        npx hardhat compile
+        cd ..
+    - name: Create Env File
+      run: |
+        cd functions
+        touch .env
+        echo API_TOKEN=${{ secrets.API_TOKEN }} >> .env
+        echo ENVIRONMENT=${{ secrets.ENVIRONMENT }} >> .env
     - name:  Deploy to Firebase
       uses: w9jds/firebase-action@master
       with:
