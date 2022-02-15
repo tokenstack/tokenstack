@@ -1,6 +1,3 @@
-functions/artifacts
-functions/cache
-
 # Logs
 logs
 *.log

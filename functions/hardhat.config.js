@@ -11,7 +11,7 @@ const PRIVATE_KEY = process.env.PRIVATE_KEY ? process.env.PRIVATE_KEY : crypto.r
 const NODE_URL = process.env.NODE_URL ? process.env.NODE_URL : crypto.randomBytes(32).toString('hex');
 
 module.exports = {
-  solidity: "0.8.1",
+  solidity: "0.8.0",
   networks: {
     rinkeby: {
       url: NODE_URL,

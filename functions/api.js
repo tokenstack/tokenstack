@@ -17,12 +17,12 @@ api.use(helmet());
 api.use(cors({ origin: true }));
 api.use(morgan('combined'));
 
-// Web3js Settings
-async function createWeb3() {
-    const NODE_URL = await getAppVariable("NODE_URL");
-    const web3 = createAlchemyWeb3(NODE_URL);
-    return web3;
-}
+api.get('/', (req, res) => {
+    res.json({
+        "Hello": "World",
+        "Version": "1.0.0",
+    })
+});
 
 api.post('/authenticate', async (req, res) => {
     const apiKey = req.body.apiKey;
@@ -41,7 +41,7 @@ api.post('/authenticate', async (req, res) => {
 api.post('/v1/upload/ipfs', async (req, res) => {
     const ipfsData = uploadToIPFS(req.body.accessToken, req.body.fileData);
 
-    res.json(ipfsData).status(200);
+    res.json(ipfsData).status(ipfsData.status);
 });
 
 api.post('/v1/nft/mint', async (req, res) => {
@@ -49,7 +49,7 @@ api.post('/v1/nft/mint', async (req, res) => {
     const contract = require("./artifacts/contracts/AbstractNFT.sol/AbstractNFT.json");
     const nftContract = new web3.eth.Contract(contract.abi, TOKENSTACK_SETTINGS.contracts.nft.rinkeby);
     // NFT Metadata + Image Setup
-    process.env.PRIVATE_KEY = req.body.privateKey;
+    const privateKey = req.body.privateKey;
     const publicKey = req.body.publicKey;
     const fileData = req.body.fileData;
     const accessToken = req.body.accessToken;
@@ -57,16 +57,22 @@ api.post('/v1/nft/mint', async (req, res) => {
     const attributes = req.body.attributes;
     const externalUrl = req.body.externalUrl;
     const name = req.body.name;
-
+    functions.logger.log("Data Obtained from API Request");
     // Get image deployment data
     const imageIpfsInfo = await uploadToIPFS(accessToken, fileData);
+    if (imageIpfsInfo.error) {
+        res.status(500).json(imageIpfsInfo)
+    }
+    functions.logger.log("Image Uploaded to IPFS");
     // Get image path from IPFS
-    const image = imageIpfsInfo.full_path;
+    const image = imageIpfsInfo.ipfsPath;
     // Create the metadata
     const metadata = JSON.stringify(createMetadata(description, image, name, attributes, externalUrl));
     const metadatab64 = Buffer.from(metadata).toString("base64");
+    functions.logger.log("Metadata Created");
     // Upload Metadata to the IPFS
     const metadataIpfsInfo = await uploadToIPFS(accessToken, metadatab64);
+    functions.logger.log("Metadata Uploaded");
 
     // Mint the NFT
     const nonce = await web3.eth.getTransactionCount(publicKey, 'latest'); //get latest nonce
@@ -77,10 +83,11 @@ api.post('/v1/nft/mint', async (req, res) => {
         'nonce': nonce,
         'gas': 500000,
         'maxPriorityFeePerGas': 1999999987,
-        'data': nftContract.methods.createCollectible(metadataIpfsInfo.full_path).encodeABI()
+        'data': nftContract.methods.createCollectible(metadataIpfsInfo.ipfsPath).encodeABI()
     };
 
-    const signPromise = web3.eth.accounts.signTransaction(transaction, process.env.PRIVATE_KEY);
+    const signPromise = web3.eth.accounts.signTransaction(transaction, privateKey);
+    functions.logger.log("Transactions Signed");
 
     signPromise.then((signedTx) => {
         web3.eth.sendSignedTransaction(signedTx.rawTransaction, function (err, hash) {
@@ -88,9 +95,10 @@ api.post('/v1/nft/mint', async (req, res) => {
                 res.status(200).json({
                     "transactionHash": hash,
                     "image": image,
-                    "metadata": metadataIpfsInfo.full_path
+                    "metadata": metadataIpfsInfo.ipfsPath
                 })
             } else {
+                functions.logger.log("Error Encountered: " + err);
                 res.status(500).json({
                     success: false,
                     error: err
@@ -103,7 +111,14 @@ api.post('/v1/nft/mint', async (req, res) => {
             error: err
         });
     });
-})
+});
+
+// Web3js Settings
+async function createWeb3() {
+    const NODE_URL = await getAppVariable("NODE_URL");
+    const web3 = createAlchemyWeb3(NODE_URL);
+    return web3;
+}
 
 async function getAppVariable(variableName) {
     const variable = await axios({
@@ -131,7 +146,7 @@ function createMetadata(description, image, name, attributes, externalUrl) {
     if (externalUrl != null) {
         metadata["external_url"] = externalUrl;
     }
-    return metadata
+    return metadata;
 }
 async function uploadToIPFS(accessToken, fileData) {
     const ipfsData = await axios({
@@ -144,6 +159,7 @@ async function uploadToIPFS(accessToken, fileData) {
             "fileData": fileData,
         }
     }).then((response) => response.data);
+
     return ipfsData;
 }
 

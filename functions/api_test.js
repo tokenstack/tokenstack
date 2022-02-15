@@ -30,8 +30,8 @@ async function testCreateNFT() {
             apiKey: sampleApiKey,
         }
     }).then((response) => response.data);
-
-    const fileData = fs.readFileSync('./images/image.jpg', { encoding: 'base64' });
+    console.log(accessToken);
+    const fileData = fs.readFileSync('./images/image-3.jpg', { encoding: 'base64' });
     const nftData = {
         accessToken: accessToken.access_token,
         description: "an nft made with tokenstack",
@@ -48,9 +48,13 @@ async function testCreateNFT() {
 
     const nft = await axios({
         method: 'post',
-        url: apiLocalUrl + "v1/nft/mint",
+        url: apiHostedUrl + "v1/nft/mint",
         data: nftData
-    }).then((response) => response.data);
+    }).then((response) => response.data).catch(function (error) {
+        if (error.response) {
+            console.log(error.response.headers);
+        }
+    });
 
     console.log(nft);
 }
@@ -58,7 +62,7 @@ async function testCreateNFT() {
 async function getAppVariable(variableName) {
     const variable = await axios({
         method: 'post',
-        url: appLocalUrl + 'internal/getVariable/',
+        url: appHostedUrl + 'internal/getVariable/',
         data: {
             variable: variableName,
             apiToken: process.env.API_TOKEN,
