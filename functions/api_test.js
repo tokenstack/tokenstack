@@ -33,7 +33,7 @@ async function testCreateNFT() {
     console.log(accessToken);
     const fileData = fs.readFileSync('./images/image-3.jpg', { encoding: 'base64' });
     const nftData = {
-        accessToken: accessToken.access_token,
+        accessToken: accessToken.accessToken,
         description: "an nft made with tokenstack",
         attributes: [{
             "trait_type": "Animal",
