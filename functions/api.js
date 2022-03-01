@@ -90,12 +90,19 @@ api.post('/v1/nft/mint', async (req, res) => {
     const signPromise = web3.eth.accounts.signTransaction(transaction, privateKey);
     functions.logger.log("Transactions Signed");
     signPromise.then((signedTx) => {
-        web3.eth.sendSignedTransaction(signedTx.rawTransaction, function (err, hash) {
+        web3.eth.sendSignedTransaction(signedTx.rawTransaction, async function (err, hash) {
             if (err) {
                 functions.logger.log("Error Encountered: " + err);
                 res.status(500).json({
                     success: false,
                     error: err
+                });
+            } else {
+                const update = await updateStats(accessToken, projectId, 1, 1);
+                res.status(200).json({
+                    "transactionHash": hash,
+                    "image": image,
+                    "metadata": metadataIpfsInfo.ipfsPath
                 });
             }
         });
@@ -105,12 +112,6 @@ api.post('/v1/nft/mint', async (req, res) => {
             success: false,
             error: err
         });
-    });
-    const update = await updateStats(accessToken, projectId, 1, 1);
-    res.status(200).json({
-        "transactionHash": hash,
-        "image": image,
-        "metadata": metadataIpfsInfo.ipfsPath
     });
 });
 
