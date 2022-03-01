@@ -53,6 +53,7 @@ api.post('/v1/nft/mint', async (req, res) => {
     const publicKey = req.body.publicKey;
     const fileData = req.body.fileData;
     const accessToken = req.body.accessToken;
+    const projectId = req.body.projectId;
     const description = req.body.description;
     const attributes = req.body.attributes;
     const externalUrl = req.body.externalUrl;
@@ -96,7 +97,9 @@ api.post('/v1/nft/mint', async (req, res) => {
                     "transactionHash": hash,
                     "image": image,
                     "metadata": metadataIpfsInfo.ipfsPath
-                })
+                });
+
+                await updateStats(accessToken, projectId, 1, 1);
             } else {
                 functions.logger.log("Error Encountered: " + err);
                 res.status(500).json({
@@ -161,6 +164,26 @@ async function uploadToIPFS(accessToken, fileData) {
     }).then((response) => response.data);
 
     return ipfsData;
+}
+
+async function updateStats(accessToken, projectId, nftApiAmount, totalApiAmount) {
+    const statsData = {
+        projectId: projectId,
+        nftApiAmount: nftApiAmount,
+        totalApiAmount: totalApiAmount,
+        apiToken: process.env.API_TOKEN
+    }
+
+    const statsResponse = await axios({
+        method: 'post',
+        url: TOKENSTACK_APP_URL + "stats/update",
+        headers: {
+            "Authorization": accessToken
+        },
+        data: statsData
+    }).then((response) => response.data);
+
+    return statsResponse;
 }
 
 api.listen(APP_PORT, () => {
