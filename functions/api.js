@@ -189,6 +189,4 @@ api.listen(APP_PORT, () => {
     console.log(`api listening at http://localhost:${APP_PORT}`)
 })
 
-exports.api = functions.runWith({
-    minInstances: 5,
-}).https.onRequest(api);
+exports.api = functions.https.onRequest(api);
