@@ -99,6 +99,8 @@ api.post('/v1/nft/mint', async (req, res) => {
                 });
             } else {
                 const update = await updateStats(accessToken, projectId, 1, 1);
+                // TODO: Network + Gas Fee Config
+                const addNFt = await addNftToProject(accessToken, projectId, image, hash, metadataIpfsInfo.ipfsPath, "rinkeby", 0.0002, publicKey, "ERC-721")
                 res.status(200).json({
                     "transactionHash": hash,
                     "image": image,
@@ -183,6 +185,32 @@ async function updateStats(accessToken, projectId, nftApiAmount, totalApiAmount)
     }).then((response) => response.data);
 
     return statsResponse;
+}
+
+async function addNftToProject(accessToken, projectId, file, transactionHash, metadata, network, gasFee, nftOwner, nftType) {
+    const nftData = {
+        projectId: projectId,
+        file: file,
+        transactionHash: transactionHash,
+        metadata, metadata,
+        network: network,
+        gasFee, gasFee,
+        nftOwner: nftOwner,
+        nftType: nftType,
+        apiToken: process.env.API_TOKEN
+    }
+
+    const addNftToProjectResponse = await axios({
+        method: 'post',
+        url: TOKENSTACK_APP_URL + "project/add/nfts",
+        headers: {
+            "Authorization": accessToken
+        },
+        data: nftData
+    }).then((response) => response.data);
+
+    return addNftToProjectResponse;
+
 }
 
 api.listen(APP_PORT, () => {
