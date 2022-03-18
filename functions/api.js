@@ -45,26 +45,39 @@ api.post('/v1/upload/ipfs', async (req, res) => {
 });
 
 api.post('/v1/nft/mint', async (req, res) => {
-    const web3 = await createWeb3();
-    const contract = require("./artifacts/contracts/AbstractNFT.sol/AbstractNFT.json");
-    const nftContract = new web3.eth.Contract(contract.abi, TOKENSTACK_SETTINGS.contracts.nft.rinkeby);
-    // NFT Metadata + Image Setup
+    // Required Body Parameters
     const privateKey = req.body.privateKey;
     const publicKey = req.body.publicKey;
     const fileData = req.body.fileData;
     const accessToken = req.body.accessToken;
     const projectId = req.body.projectId;
-    const description = req.body.description;
-    const attributes = req.body.attributes;
-    const externalUrl = req.body.externalUrl;
-    const name = req.body.name;
-    functions.logger.log("Data Obtained from API Request");
+
+    if (!privateKey || !publicKey || !fileData || !accessToken || !projectId) {
+        res.json({
+            success: false,
+            error: "Request must include private key, public key, file data, access token, and project id"
+        }).status(500);
+    }
+
+    // Optional Body Parameters
+    const description = req.body.description ? req.body.description : "";
+    const attributes = req.body.attributes ? req.body.attributes : [];
+    const externalUrl = req.body.externalUrl ? req.body.externalUrl : "";
+    const name = req.body.name ? req.body.name : "A Tokenstack NFT";
+    const network = req.body.network ? req.body.network : "rinkeby";
+    const nftType = req.body.nftType ? req.body.nftType : "erc-721";
+
+    // Initialize Web3 + Setup COntract
+    const web3 = await createWeb3();
+    const contract = require("./artifacts/contracts/AbstractNFT.sol/AbstractNFT.json");
+    const nftContract = new web3.eth.Contract(contract.abi, TOKENSTACK_SETTINGS.contracts.nft[network]);
+
     // Get image deployment data
     const imageIpfsInfo = await uploadToIPFS(accessToken, fileData);
     if (imageIpfsInfo.error) {
         res.status(500).json(imageIpfsInfo)
     }
-    functions.logger.log("Image Uploaded to IPFS");
+
     // Get image path from IPFS
     const image = imageIpfsInfo.ipfsPath;
     // Create the metadata
@@ -88,7 +101,6 @@ api.post('/v1/nft/mint', async (req, res) => {
     };
 
     const signPromise = web3.eth.accounts.signTransaction(transaction, privateKey);
-    functions.logger.log("Transactions Signed");
     signPromise.then((signedTx) => {
         web3.eth.sendSignedTransaction(signedTx.rawTransaction, async function (err, hash) {
             if (err) {
@@ -99,12 +111,14 @@ api.post('/v1/nft/mint', async (req, res) => {
                 });
             } else {
                 const update = await updateStats(accessToken, projectId, 1, 1);
+                const gasFee = (await web3.eth.getTransaction(hash)).gasPrice
                 // TODO: Network + Gas Fee Config
-                const addNFt = await addNftToProject(accessToken, projectId, image, hash, metadataIpfsInfo.ipfsPath, "rinkeby", 0.0002, publicKey, "ERC-721")
+                const addNFt = await addNftToProject(accessToken, projectId, image, hash, metadataIpfsInfo.ipfsPath, network, gasFee, publicKey, nftType)
                 res.status(200).json({
-                    "transactionHash": hash,
-                    "image": image,
-                    "metadata": metadataIpfsInfo.ipfsPath
+                    transactionHash: hash,
+                    image: image,
+                    metadata: metadataIpfsInfo.ipfsPath,
+                    success: true
                 });
             }
         });
