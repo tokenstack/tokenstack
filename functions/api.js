@@ -111,9 +111,10 @@ api.post('/v1/nft/mint', async (req, res) => {
                 });
             } else {
                 const update = await updateStats(accessToken, projectId, 1, 1);
-                const gasFee = (await web3.eth.getTransaction(hash)).gasPrice
-                // TODO: Network + Gas Fee Config
-                const addNFt = await addNftToProject(accessToken, projectId, image, hash, metadataIpfsInfo.ipfsPath, network, gasFee, publicKey, nftType)
+                // const transactionSnapshot = await web3.eth.getTransaction(hash);
+                // const gasFee = transactionSnapshot.gasPrice / 1000000000;
+                const gasFee = await web3.eth.getGasPrice().then((result) => web3.utils.fromWei(result, 'ether'))
+                const addNFt = await addNftToProject(accessToken, projectId, image, hash, metadataIpfsInfo.ipfsPath, network, 0.0002, publicKey, nftType)
                 res.status(200).json({
                     transactionHash: hash,
                     image: image,
@@ -213,7 +214,6 @@ async function addNftToProject(accessToken, projectId, file, transactionHash, me
         nftType: nftType,
         apiToken: process.env.API_TOKEN
     }
-
     const addNftToProjectResponse = await axios({
         method: 'post',
         url: TOKENSTACK_APP_URL + "project/add/nfts",

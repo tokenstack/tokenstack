@@ -1,6 +1,6 @@
 require('dotenv').config();
 
-TOKENSTACK_APP_URL = "https://us-central1-tokenstack-dev.cloudfunctions.net/app/";
+TOKENSTACK_APP_URL = " https://us-central1-tokenstack-dev.cloudfunctions.net/app/";
 TOKENSTACK_SETTINGS = {
     contracts: {
         nft: {
