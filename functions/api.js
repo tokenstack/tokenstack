@@ -68,7 +68,7 @@ api.post('/v1/nft/mint', async (req, res) => {
     const nftType = req.body.nftType ? req.body.nftType : "erc-721";
 
     // Initialize Web3 + Setup COntract
-    const web3 = await createWeb3();
+    const web3 = await createWeb3(TOKENSTACK_SETTINGS.nodes[network]);
     const contract = require("./artifacts/contracts/AbstractNFT.sol/AbstractNFT.json");
     const nftContract = new web3.eth.Contract(contract.abi, TOKENSTACK_SETTINGS.contracts.nft[network]);
 
@@ -133,9 +133,8 @@ api.post('/v1/nft/mint', async (req, res) => {
 });
 
 // Web3js Settings
-async function createWeb3() {
-    const NODE_URL = await getAppVariable("NODE_URL");
-    const web3 = createAlchemyWeb3(NODE_URL);
+async function createWeb3(nodeUrl) {
+    const web3 = createAlchemyWeb3(nodeUrl);
     return web3;
 }
 
