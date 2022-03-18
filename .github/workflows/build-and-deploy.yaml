@@ -18,7 +18,11 @@ jobs:
         touch .env
         echo API_TOKEN=${{ secrets.API_TOKEN }} >> .env
         echo ENVIRONMENT=${{ secrets.ENVIRONMENT }} >> .env
-        echo NODE_URL=${{ secrets.NODE_URL }} >> .env
+        echo RINKEBY_NODE=${{ secrets.RINKEBY_NODE }} >> .env
+        echo ROPSTEN_NODE=${{ secrets.ROPSTEN_NODE }} >> .env
+        echo GOERLI_NODE=${{ secrets.GOERLI_NODE }} >> .env
+        echo MAINNET_NODE=${{ secrets.MAINNET_NODE }} >> .env
+        echo POLYGON_NODE=${{ secrets.POLYGON_NODE }} >> .env
     - name:  Deploy to Firebase
       uses: w9jds/firebase-action@master
       with:
