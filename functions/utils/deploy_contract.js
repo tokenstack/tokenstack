@@ -11,5 +11,5 @@ async function deployContract() {
 }
 
 deployContract().then((output) => {
-    console.log(output);
+    console.log(output.address);
 });

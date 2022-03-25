@@ -20,5 +20,9 @@ module.exports = {
       url: process.env.ROPSTEN_NODE,
       accounts: [`${PRIVATE_KEY}`],
     },
+    goerli: {
+      url: process.env.GOERLI_NODE,
+      accounts: [`${PRIVATE_KEY}`],
+    }
   }
 };

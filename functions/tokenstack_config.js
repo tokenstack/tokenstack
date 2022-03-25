@@ -5,7 +5,8 @@ TOKENSTACK_SETTINGS = {
     contracts: {
         nft: {
             rinkeby: "0xFCf455b6a9cBEE05c9393aecb190301EF8CC47f8",
-            ropsten: "0x3f8F5a2469243497199f94204FdD00FD8eF439b3"
+            ropsten: "0x49Aea9b89dC1528231b6a578204E65963D698255",
+            goerli: "0x4C0f96Ede90706ECD1351ABB1499cc5dDdf4510C"
         }
     },
     nodes: {
