@@ -95,7 +95,7 @@ api.post('/v1/nft/mint', async (req, res) => {
         'from': publicKey,
         'to': TOKENSTACK_SETTINGS.contracts.nft.rinkeby,
         'nonce': nonce,
-        'gas': 500000,
+        'gas': web3.eth.gasFee.toNumber() * 1.10,
         'maxPriorityFeePerGas': 1999999987,
         'data': nftContract.methods.createCollectible(metadataIpfsInfo.ipfsPath).encodeABI()
     };
