@@ -23,6 +23,10 @@ module.exports = {
     goerli: {
       url: process.env.GOERLI_NODE,
       accounts: [`${PRIVATE_KEY}`],
+    },
+    mumbai: {
+      url: process.env.MUMBAI_NODE,
+      accounts: [`${PRIVATE_KEY}`]
     }
   }
 };
