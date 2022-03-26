@@ -97,7 +97,7 @@ api.post('/v1/nft/mint', async (req, res) => {
         'nonce': nonce,
         'gas': 500000,
         'maxPriorityFeePerGas': 1999999987,
-        'data': nftContract.methods.createCollectible(metadataIpfsInfo.ipfsPath).encodeABI()
+        'data': nftContract.methods.mintNFT(publicKey, metadataIpfsInfo.ipfsPath).encodeABI()
     };
 
     const signPromise = web3.eth.accounts.signTransaction(transaction, privateKey);

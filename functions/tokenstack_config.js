@@ -4,9 +4,9 @@ TOKENSTACK_APP_URL = " https://us-central1-tokenstack-dev.cloudfunctions.net/app
 TOKENSTACK_SETTINGS = {
     contracts: {
         nft: {
-            rinkeby: "0xFCf455b6a9cBEE05c9393aecb190301EF8CC47f8",
-            ropsten: "0x49Aea9b89dC1528231b6a578204E65963D698255",
-            goerli: "0x4C0f96Ede90706ECD1351ABB1499cc5dDdf4510C"
+            rinkeby: "0xa0e3eB5f51E05b9575B4752a3510dE63997E82Df",
+            ropsten: "0x421726E85520DD10504Cdd383C4E97f5407Bd6C6",
+            goerli: "0x421726E85520DD10504Cdd383C4E97f5407Bd6C6"
         }
     },
     nodes: {

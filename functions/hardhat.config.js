@@ -10,7 +10,7 @@ const crypto = require("crypto");
 const PRIVATE_KEY = process.env.PRIVATE_KEY ? process.env.PRIVATE_KEY : crypto.randomBytes(32).toString('hex');
 
 module.exports = {
-  solidity: "0.8.0",
+  solidity: "0.7.3",
   networks: {
     rinkeby: {
       url: process.env.RINKEBY_NODE,

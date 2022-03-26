@@ -1,28 +1,30 @@
+//Contract based on https://docs.openzeppelin.com/contracts/3.x/erc721
 // SPDX-License-Identifier: MIT
-
-pragma solidity ^0.8.0;
+pragma solidity ^0.7.3;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
-import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract AbstractNFT is ERC721URIStorage {
-    uint256 public tokenCounter;
+contract AbstractNFT is ERC721, Ownable {
+    using Counters for Counters.Counter;
+    Counters.Counter private _tokenIds;
 
     constructor(string memory _name, string memory _symbol)
         public
         ERC721(_name, _symbol)
-    {
-        tokenCounter = 0;
-    }
+    {}
 
-    function createCollectible(string memory tokenURI)
+    function mintNFT(address recipient, string memory tokenURI)
         public
         returns (uint256)
     {
-        uint256 newTokenId = tokenCounter;
-        _safeMint(msg.sender, newTokenId);
-        _setTokenURI(newTokenId, tokenURI);
-        tokenCounter = tokenCounter + 1;
-        return newTokenId;
+        _tokenIds.increment();
+
+        uint256 newItemId = _tokenIds.current();
+        _mint(recipient, newItemId);
+        _setTokenURI(newItemId, tokenURI);
+
+        return newItemId;
     }
 }
