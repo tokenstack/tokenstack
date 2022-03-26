@@ -89,13 +89,13 @@ api.post('/v1/nft/mint', async (req, res) => {
     functions.logger.log("Metadata Uploaded");
 
     // Mint the NFT
-    const nonce = await web3.eth.getTransactionCount(publicKey, 'latest'); //get latest nonce
+    const nonce = (await web3.eth.getTransactionCount(publicKey, 'pending'));
     //the transaction
     const transaction = {
         'from': publicKey,
-        'to': TOKENSTACK_SETTINGS.contracts.nft.rinkeby,
+        'to': TOKENSTACK_SETTINGS.contracts.nft[network],
         'nonce': nonce,
-        'gas': web3.eth.gasFee.toNumber() * 1.10,
+        'gas': 500000,
         'maxPriorityFeePerGas': 1999999987,
         'data': nftContract.methods.createCollectible(metadataIpfsInfo.ipfsPath).encodeABI()
     };
@@ -111,8 +111,6 @@ api.post('/v1/nft/mint', async (req, res) => {
                 });
             } else {
                 const update = await updateStats(accessToken, projectId, 1, 1);
-                // const transactionSnapshot = await web3.eth.getTransaction(hash);
-                // const gasFee = transactionSnapshot.gasPrice / 1000000000;
                 const gasFee = await web3.eth.getGasPrice().then((result) => web3.utils.fromWei(result, 'ether'))
                 const addNFt = await addNftToProject(accessToken, projectId, image, hash, metadataIpfsInfo.ipfsPath, network, gasFee, publicKey, nftType)
                 res.status(200).json({
