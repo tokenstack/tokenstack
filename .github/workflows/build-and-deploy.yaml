@@ -22,7 +22,7 @@ jobs:
         echo ROPSTEN_NODE=${{ secrets.ROPSTEN_NODE }} >> .env
         echo GOERLI_NODE=${{ secrets.GOERLI_NODE }} >> .env
         echo MAINNET_NODE=${{ secrets.MAINNET_NODE }} >> .env
-        echo POLYGON_NODE=${{ secrets.POLYGON_NODE }} >> .env
+        echo MUMBAI_NODE=${{ secrets.MUMBAI_NODE }} >> .env
     - name:  Deploy to Firebase
       uses: w9jds/firebase-action@master
       with:
