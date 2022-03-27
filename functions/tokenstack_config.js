@@ -16,7 +16,9 @@ TOKENSTACK_SETTINGS = {
         goerli: process.env.GOERLI_NODE,
         mainnet: process.env.MAINNET_NODE,
         mumbai: process.env.MUMBAI_NODE
-    }
+    },
+    networks: ["rinkeby", "ropsten", "goerli", "mumbai"],
+    nftTypes: ["erc-721"]
 };
 
 module.exports = { TOKENSTACK_APP_URL, TOKENSTACK_SETTINGS };

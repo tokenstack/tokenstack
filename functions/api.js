@@ -67,7 +67,22 @@ api.post('/v1/nft/mint', async (req, res) => {
     const network = req.body.network ? req.body.network : "rinkeby";
     const nftType = req.body.nftType ? req.body.nftType : "erc-721";
 
-    // Initialize Web3 + Setup COntract
+    if (!TOKENSTACK_SETTINGS.networks.includes(network)) {
+        res.json({
+            success: false,
+            error: "Network not in supported types: " + TOKENSTACK_SETTINGS.networks.join(', ')
+        }).status(500);
+    }
+
+    if (!TOKENSTACK_SETTINGS.nftTypes.includes(nftType)) {
+        res.json({
+            success: false,
+            error: "NFT Type not in supported types: " + TOKENSTACK_SETTINGS.nftTypes.join(', ')
+        }).status(500);
+    }
+
+
+    // Initialize Web3 + Setup Contract
     const web3 = await createWeb3(TOKENSTACK_SETTINGS.nodes[network]);
     const contract = require("./artifacts/contracts/AbstractNFT.sol/AbstractNFT.json");
     const nftContract = new web3.eth.Contract(contract.abi, TOKENSTACK_SETTINGS.contracts.nft[network]);
@@ -83,10 +98,8 @@ api.post('/v1/nft/mint', async (req, res) => {
     // Create the metadata
     const metadata = JSON.stringify(createMetadata(description, image, name, attributes, externalUrl));
     const metadatab64 = Buffer.from(metadata).toString("base64");
-    functions.logger.log("Metadata Created");
     // Upload Metadata to the IPFS
     const metadataIpfsInfo = await uploadToIPFS(accessToken, metadatab64);
-    functions.logger.log("Metadata Uploaded");
 
     // Mint the NFT
     const nonce = (await web3.eth.getTransactionCount(publicKey, 'pending'));
@@ -111,8 +124,8 @@ api.post('/v1/nft/mint', async (req, res) => {
                 });
             } else {
                 const update = await updateStats(accessToken, projectId, 1, 1);
-                const gasFee = await web3.eth.getGasPrice().then((result) => web3.utils.fromWei(result, 'ether'))
-                const addNFt = await addNftToProject(accessToken, projectId, image, hash, metadataIpfsInfo.ipfsPath, network, gasFee, publicKey, nftType)
+                const gasFee = await web3.eth.getGasPrice().then((result) => web3.utils.fromWei(result, 'ether'));
+                const addNFt = await addNftToProject(accessToken, projectId, image, hash, metadataIpfsInfo.ipfsPath, network, gasFee, publicKey, nftType);
                 res.status(200).json({
                     transactionHash: hash,
                     image: image,
